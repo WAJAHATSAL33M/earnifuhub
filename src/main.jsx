@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ArrowLeft, ArrowRight, ChevronRight, CircleHelp, ClipboardList, Headphones, Home, Layers, Lock, Menu, Orbit, ScanLine, TrainFront, UserPlus, Users, Wallet, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronRight, CircleHelp, ClipboardList, Headphones, Home, Layers, Lock, LogOut, Menu, Orbit, ScanLine, TrainFront, UserPlus, Users, Wallet, X } from 'lucide-react'
 import './style.css'
 
 const names = {
@@ -11,11 +11,29 @@ const names = {
   '/account':'Account', '/verification':'Verification', '/support':'Support', '/faq':'FAQ',
   '/terms':'Terms', '/privacy':'Privacy', '/network':'Explore the Network'
 }
-const publicNav = [['/','Home',Home],['/plans','Plans',Layers],['/login','Log In',Lock],['/signup','Sign Up',UserPlus],['/support','Support',Headphones]]
-const memberPages = ['/dashboard','/investments','/team','/rewards','/invest','/confirm-deposit','/deposit','/withdraw','/transfer','/history','/account','/verification']
+const memberPages = ['/dashboard','/plans','/investments','/team','/rewards','/invest','/confirm-deposit','/deposit','/withdraw','/transfer','/history','/account','/verification','/contact','/support','/faq','/terms','/privacy','/network']
 const providers = ['Easypaisa','JazzCash','NayaPay','UBL Bank','UPaisa']
-const samplePlans = [['Rail Link',320,80],['Transit Plus',640,80],['Network Select',1280,80]]
+const samplePlans = [
+  ['Rail Link',320,80,'Local route','Start with the smallest example plan.'],
+  ['Transit Plus',640,80,'Regional route','Review a larger fixed-term example.'],
+  ['Network Select',1280,80,'Regional route','Explore the next tier in the sample catalog.'],
+  ['Intermodal',2560,80,'Extended route','Compare this plan’s amount and duration.'],
+  ['Metro Exchange',5120,80,'Extended route','Review a higher-value example.'],
+  ['Mainline',11000,80,'Extended route','Explore the largest example in this catalog.']
+]
 const money = amount => 'PKR ' + Number(amount).toLocaleString('en-PK')
+const sessionKey = 'earnifyhub-preview-session'
+const registeredKey = 'earnifyhub-preview-registered'
+const signedIn = () => sessionStorage.getItem(sessionKey) === 'yes'
+function safeReturn(value) {
+  const pathname = value?.split(/[?#]/)[0]
+  return memberPages.includes(pathname) ? value : '/dashboard'
+}
+function gated(path) {
+  return !signedIn() && memberPages.includes(path.split(/[?#]/)[0])
+    ? '/signup?next=' + encodeURIComponent(path)
+    : path
+}
 const stories = ['Inside the rail terminal','Rapid delivery','Smart warehousing','Connected trade','How the hub works']
 const storyNotes = [
   'A rail terminal brings trains, cranes and local road routes together. Containers are staged, lifted and routed onward from one location.',
@@ -26,11 +44,11 @@ const storyNotes = [
 ]
 
 function go(path) {
-  window.history.pushState({}, '', path)
+  window.history.pushState({}, '', gated(path))
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
 function Link({to, children, ...props}) {
-  return <a href={to} {...props} onClick={event => {
+  return <a href={gated(to)} {...props} onClick={event => {
     if (event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
     event.preventDefault()
     go(to)
@@ -52,15 +70,15 @@ function Input({title, ...props}) {
   return <Label title={title}><input {...props}/></Label>
 }
 function Mobile() {
-  return <Label title="Mobile number"><div className="combined"><b>+92</b><input type="tel" placeholder="3XX XXXXXXX" autoComplete="tel-national"/></div></Label>
+  return <Label title="Mobile number"><div className="combined"><b>+92</b><input required type="tel" placeholder="3XX XXXXXXX" autoComplete="tel-national"/></div></Label>
 }
 function Password() {
   const [visible, setVisible] = useState(false)
-  return <Label title="Password"><div className="combined"><input type={visible ? 'text':'password'} placeholder="Enter your password"/><button type="button" onClick={()=>setVisible(!visible)}>{visible?'Hide':'Show'}</button></div></Label>
+  return <Label title="Password"><div className="combined"><input required type={visible ? 'text':'password'} placeholder="Enter your password"/><button type="button" onClick={()=>setVisible(!visible)}>{visible?'Hide':'Show'}</button></div></Label>
 }
 function Captcha() {
   const [code, setCode] = useState('849273')
-  return <Label title="Verification code"><div className="combined"><input inputMode="numeric" placeholder="Enter code"/><code>{code}</code><button type="button" aria-label="Refresh code" onClick={()=>setCode(String(Math.floor(100000+Math.random()*900000)))}>↻</button></div></Label>
+  return <Label title="Verification code"><div className="combined"><input required inputMode="numeric" placeholder="Enter code"/><code>{code}</code><button type="button" aria-label="Refresh code" onClick={()=>setCode(String(Math.floor(100000+Math.random()*900000)))}>↻</button></div></Label>
 }
 function Form({next, children, button, message = 'Preview complete. No information was sent.'}) {
   const [done, setDone] = useState(false)
@@ -68,34 +86,65 @@ function Form({next, children, button, message = 'Preview complete. No informati
 }
 function HomePage() {
   return <>
-    <section className="hero"><div><span className="eyebrow"><Orbit size={15}/> EARNIFYHUB</span><h1>A connected hub for <em>your next move.</em></h1><p>Explore plans, manage funds, and follow your activity from one place.</p></div></section>
+    <section id="home" className="hero"><div><span className="eyebrow"><Orbit size={15}/> EARNIFYHUB</span><h1>A connected hub for <em>your next move.</em></h1><p>Explore plans, manage funds, and follow your activity from one place.</p></div></section>
     <main className="home-content" id="content">
       <div className="quick"><Tile to="/signup" icon={UserPlus}>Create Account</Tile><Tile to="/login" icon={Lock}>Log In</Tile><Tile to="/support" icon={Headphones}>Customer Support</Tile></div>
-      <section className="section"><h2>Explore the network</h2><div className="story-grid">{stories.map((title,i)=><Link key={title} to={'/network?story='+i} className={'story story-'+i}><span>{i<3?'FIELD NOTES':'GUIDE'}</span><strong>{title} <ArrowRight size={15}/></strong></Link>)}</div></section>
-      <section className="callout"><h2>Find your next route</h2><div className="actions"><Action to="/signup">Create Account</Action><Action to="/login" secondary>Log In</Action></div></section>
-      <div className="signal-strip"><span><Layers size={16}/> Plan details</span><span><Wallet size={16}/> Wallet activity</span><span><Users size={16}/> Team tracking</span></div><section className="network-feature"><h2>One connected trade network</h2><Link to="/network?story=3">Explore the network <ArrowRight size={15}/></Link></section><section className="section"><h2>Featured tools</h2><div className="tools"><Tile to="/investments" icon={ClipboardList}>My Earnings</Tile><Tile to="/team" icon={Users}>My Referral</Tile><Tile to="/account" icon={Orbit}>My Account</Tile></div></section>
+      <section id="explore" className="section"><h2>Explore the network</h2><div className="story-grid">{stories.map((title,i)=><Link key={title} to={'/network?story='+i} className={'story story-'+i}><span>{i<3?'FIELD NOTES':'GUIDE'}</span><strong>{title} <ArrowRight size={15}/></strong></Link>)}</div></section>
+      <section id="plans" className="feature-banner plans-banner"><div><span className="eyebrow">PLAN CATALOG</span><h2>Choose a route through the network</h2><p>Compare plan amounts, durations, and payment steps in your hub.</p><Action to="/plans">Explore Plans</Action></div></section>
+      <div className="signal-strip"><span><Layers size={16}/> Plan details</span><span><Wallet size={16}/> Wallet activity</span><span><Users size={16}/> Team tracking</span></div>
+      <section className="feature-banner network-feature"><div><h2>One connected trade network</h2><p>From rail terminals to regional dispatch, the network brings every route into one view.</p><Link to="/network?story=3">Explore connected trade <ArrowRight size={15}/></Link></div></section>
+      <section className="section" id="tools"><h2>Featured tools</h2><div className="tools"><Tile to="/investments" icon={ClipboardList}>My Earnings</Tile><Tile to="/team" icon={Users}>My Referral</Tile><Tile to="/account" icon={Orbit}>My Account</Tile></div></section>
       <section className="section"><h2>What’s in your hub</h2><Tile to="/plans" icon={Layers}>Browse plans</Tile><Tile to="/deposit" icon={Wallet}>Manage your wallet</Tile><Tile to="/history" icon={ClipboardList}>Track transactions</Tile><Tile to="/team" icon={Users}>View your team</Tile></section>
-      <section className="section"><h2>How it works</h2><ol className="steps"><li>Create an account</li><li>Review a plan</li><li>Review payment instructions</li><li>Track your activity</li></ol></section>
-      <section className="callout"><h2>Need help?</h2><div className="actions"><Action to="/contact">Contact support</Action><Action to="/faq" secondary>Read FAQ</Action></div></section>
-      <footer><Link to="/"><img src="/media/logo.png" alt="EarnifyHub"/></Link><div><Link to="/contact">Contact</Link><Link to="/terms">Terms</Link><Link to="/privacy">Privacy</Link></div></footer>
+      <section className="feature-banner activity-banner"><div><span className="eyebrow">ACTIVITY CENTER</span><h2>Follow every step from your hub</h2><p>See your plan reviews, wallet activity, and payment status in one place.</p><Action to="/history" secondary>View History</Action></div></section>
+      <section className="section" id="how-it-works"><h2>How it works</h2><ol className="steps"><li>Create an account</li><li>Review a plan</li><li>Review payment instructions</li><li>Track your activity</li></ol></section>
+      <section className="callout"><h2>Find your next route</h2><div className="actions"><Action to="/signup">Create Account</Action><Action to="/login" secondary>Log In</Action></div></section>
+      <section id="help" className="callout"><h2>Need help?</h2><div className="help-actions"><Action to="/contact">Contact Support</Action><Action to="/faq" secondary>Read FAQ</Action></div></section>
     </main>
   </>
 }
-function Auth({page}) {
+function Auth({page, query}) {
   const signup = page === '/signup'
   const reset = page === '/reset-password'
+  const next = safeReturn(query.get('next'))
+  const suffix = query.has('next') ? '?next='+encodeURIComponent(next) : ''
   const [sent, setSent] = useState(false)
-  return <Panel><form onSubmit={event=>{event.preventDefault();if(reset && !sent) setSent(true);else go(reset ? '/login':'/dashboard')}}>
-    {signup && <Input title="Full name" placeholder="Enter your full name" autoComplete="name"/>}
+  const [error, setError] = useState('')
+  function submit(event) {
+    event.preventDefault()
+    if (reset) {
+      if (!sent) setSent(true)
+      else go('/login'+suffix)
+      return
+    }
+    if (signup) localStorage.setItem(registeredKey,'yes')
+    if (!localStorage.getItem(registeredKey)) {
+      setError('Create a demo account first, then you can log in on this device.')
+      return
+    }
+    sessionStorage.setItem(sessionKey,'yes')
+    go(next)
+  }
+  return <><div className="notice">{query.has('next') && signup ? 'Create a demo account to open this section. ' : ''}Preview only · use sample details.</div><Panel><form onSubmit={submit}>
+    {signup && <Input required title="Full name" placeholder="Enter your full name" autoComplete="name"/>}
     <Mobile/>
     {(!reset || sent) && <Password/>}
-    {!signup && !reset && <div className="form-links"><label><input type="checkbox"/> Keep me signed in</label><Link to="/reset-password">Forgot password?</Link></div>}
+    {!signup && !reset && <div className="form-links"><label><input type="checkbox"/> Keep me signed in</label><Link to={'/reset-password'+suffix}>Forgot password?</Link></div>}
     {(!reset || sent) && <Captcha/>}
     <button className="button wide" type="submit">{reset ? sent?'Save demo password':'Preview reset code' : signup?'Create Account':'Log In'}</button>
-  </form><p className="center">{signup ? <>Already have an account? <Link to="/login">Log in</Link></> : reset ? <Link to="/login">Back to Log In</Link> : <>New to EarnifyHub? <Link to="/signup">Create an account</Link></>}</p></Panel>
+    {error && <p role="alert">{error}</p>}
+  </form><p className="center">{signup ? <>Already have an account? <Link to={'/login'+suffix}>Log in</Link></> : reset ? <Link to={'/login'+suffix}>Back to Log In</Link> : <>New to EarnifyHub? <Link to={'/signup'+suffix}>Create an account</Link></>}</p></Panel></>
 }
 function Plans() {
-  return <><div className="notice">Design preview · sample plans</div>{samplePlans.map(([title,amount,days],index)=><Panel key={title}><div className={'plan-art story-'+index}><TrainFront size={24}/></div><h2>{title}</h2><div className="stats"><span>Plan amount<strong>{money(amount)}</strong></span><span>Duration<strong>{days} days</strong></span></div><Action to={'/invest?plan='+index}>Review Plan</Action></Panel>)}</>
+  const [filter,setFilter] = useState('All plans')
+  const filters = ['All plans','Local route','Regional route','Extended route']
+  return <><Panel title="Deposit wallet"><div className="wallet-summary"><Wallet size={27}/><div><small>Available balance · demo</small><strong>PKR 0.00</strong></div></div><div className="actions"><Action to="/deposit">Deposit</Action><Action to="/investments" secondary>My Investments</Action></div></Panel>
+    <p className="notice">Sample catalog. Earnings schedules and capital terms are pending.</p>
+    <div className="plan-filters" aria-label="Plan categories">{filters.map(item=><button type="button" key={item} aria-pressed={filter===item} onClick={()=>setFilter(item)}>{item}</button>)}</div>
+    {samplePlans.map(([title,amount,days,route,description],index)=>filter!=='All plans' && route!==filter ? null:<section className="panel plan-card" key={title}>
+      <div className={'plan-art story-'+(index%5)}><div><span className="eyebrow">{route}</span><h2>{title}</h2></div><TrainFront size={24}/></div>
+      <div className="plan-body"><p>{description}</p><dl className="plan-details"><div><dt>Plan amount</dt><dd>{money(amount)}</dd></div><div><dt>Validity</dt><dd>{days} days</dd></div><div><dt>Daily credit</dt><dd>Pending</dd></div><div><dt>Total credit</dt><dd>Pending</dd></div></dl><Action to={'/invest?plan='+index}>Review Plan <ArrowRight size={16}/></Action></div>
+    </section>)}
+  </>
 }
 function Payment({page, query}) {
   const selected = samplePlans[Number(query.get('plan'))] ?? samplePlans[0]
@@ -146,7 +195,7 @@ function Team() {
   return <><Panel title="Your referral link"><p>Preview a shareable invitation.</p><button className="button" onClick={async()=>{try{await navigator.clipboard.writeText(window.location.origin+'/signup?ref=demo');setCopied(true)}catch{setCopied(false)}}}>{copied?'Copied':'Copy demo link'}</button></Panel><Panel title="Team overview"><div className="stats"><span>Members<strong>0</strong></span><span>Commission<strong>PKR 0</strong></span></div>{['Direct team','Level 2','Level 3'].map(level=><div className="ledger" key={level}>{level}<b>0 members</b></div>)}</Panel></>
 }
 function Account() {
-  return <><Panel title="Profile preview"><Form button="Preview changes"><Input title="Full name" defaultValue="Demo Member"/><Input title="Mobile number" readOnly value="+92 3•• •••••••"/><Input title="Email" type="email" placeholder="you@example.com"/></Form></Panel><Tile to="/verification" icon={ScanLine}>Verification</Tile><Tile to="/reset-password" icon={Lock}>Change Password</Tile><Tile to="/login">Leave demo dashboard</Tile></>
+  return <><Panel title="Profile preview"><Form button="Preview changes"><Input title="Full name" defaultValue="Demo Member"/><Input title="Mobile number" readOnly value="+92 3•• •••••••"/><Input title="Email" type="email" placeholder="you@example.com"/></Form></Panel><Tile to="/verification" icon={ScanLine}>Verification</Tile><Tile to="/reset-password" icon={Lock}>Change Password</Tile></>
 }
 const faqs = [['How do I create an account?','Open Create Account and use the preview form. No account is created in this preview.'],['Where can I see plan details?','Open Plans and choose Review Plan. All displayed amounts and terms are examples.'],['How can I check a deposit?','Open History and select Deposits to see the sample payment statuses.'],['How do I contact support?','Open Support or Contact to preview the available forms.']]
 function FAQ() {
@@ -154,7 +203,7 @@ function FAQ() {
   return <><Panel title="Common questions"><Input title="Search questions" type="search" value={search} onChange={event=>setSearch(event.target.value)}/>{faqs.filter(row=>row.join(' ').toLowerCase().includes(search.toLowerCase())).map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</Panel><Action to="/contact">Contact Support</Action></>
 }
 function Page({page,query}) {
-  if (['/login','/signup','/reset-password'].includes(page)) return <Auth page={page}/>
+  if (['/login','/signup','/reset-password'].includes(page)) return <Auth page={page} query={query}/>
   if (page === '/dashboard') return <Dashboard/>
   if (page === '/plans') return <Plans/>
   if (['/invest','/deposit','/confirm-deposit','/withdraw','/transfer'].includes(page)) return <Payment page={page} query={query}/>
@@ -169,32 +218,49 @@ function Page({page,query}) {
   if (page === '/network') return <Panel title={stories[Number(query.get('story'))] || stories[0]}><div className={'plan-art story-'+(Number(query.get('story'))||0)}></div><p>{storyNotes[Number(query.get('story'))] || storyNotes[0]}</p><Action to="/plans">Explore Plans</Action></Panel>
   return <Panel title="Page unavailable"><Action to="/">Back to Home</Action></Panel>
 }
+function readLocation() {
+  const original = window.location.pathname + window.location.search + window.location.hash
+  const target = gated(original)
+  if (target !== original) window.history.replaceState({}, '', target)
+  return target
+}
+const guestMenu = [['/#home','Homepage'],['/#explore','Explore the Network'],['/#plans','Plans'],['/#tools','Featured Tools'],['/#how-it-works','How It Works'],['/#help','Support'],['/signup','Create Account'],['/login','Log In'],['/contact','Contact'],['/faq','FAQ']]
+const memberMenu = [['/dashboard','Dashboard'],['/plans','Plans'],['/investments','My Investments'],['/deposit','Deposit'],['/withdraw','Withdraw'],['/history','History'],['/transfer','Balance Transfer'],['/team','My Team'],['/rewards','Rewards'],['/account','Account'],['/verification','Verification'],['/support','Support'],['/faq','FAQ'],['/contact','Contact']]
 function App() {
-  const [location,setLocation]=useState(window.location.pathname+window.location.search)
+  const [location,setLocation]=useState(readLocation)
   const [menu,setMenu]=useState(false)
-  const [page,search]=location.split('?')
+  const [pathname,hash]=location.split('#')
+  const [page,search]=pathname.split('?')
   const query = new URLSearchParams(search)
-  const member = memberPages.includes(page)
-  const nav = member ? publicNav.map(([to,label,Icon])=>[to==='/'?'/dashboard':to,label,Icon]) : publicNav
+  const member = signedIn()
   const title = names[page] || 'Page unavailable'
   const section = ['/invest','/confirm-deposit'].includes(page) ? '/plans':page
+  const nav = [[member?'/dashboard':'/','Home',Home],['/plans','Plans',Layers],['/support','Support',Headphones]]
   useEffect(()=>{
-    const change=()=>{setLocation(window.location.pathname+window.location.search);setMenu(false)}
+    const change=()=>{setLocation(readLocation());setMenu(false)}
     window.addEventListener('popstate',change)
     return ()=>window.removeEventListener('popstate',change)
   },[])
-  useEffect(()=>{window.scrollTo(0,0);document.title=page==='/'?'EarnifyHub — Your next move':title+' · EarnifyHub'},[page,title])
+  useEffect(()=>{
+    if (hash) document.getElementById(hash)?.scrollIntoView({block:'start'})
+    else window.scrollTo(0,0)
+    document.title=page==='/'?'EarnifyHub — Your next move':title+' · EarnifyHub'
+  },[location,page,title,hash])
   useEffect(()=>{
     const close=event=>{if(event.key==='Escape')setMenu(false)}
     window.addEventListener('keydown',close)
     return ()=>window.removeEventListener('keydown',close)
   },[])
+  function logout() {
+    sessionStorage.removeItem(sessionKey)
+    go(location === '/' ? '/#home' : '/')
+  }
   return <div className="shell">
     <a className="skip" href="#content">Skip to content</a>
-    <header><Link className="brand" to="/" aria-label="EarnifyHub home"><img src="/media/logo.png" alt="EarnifyHub"/></Link><div className="header-actions"><Link className="button small" to="/signup">Sign Up</Link><button className="icon-button" aria-expanded={menu} aria-controls={menu?'site-menu':undefined} aria-label={menu?'Close menu':'Open menu'} onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header>
-    {menu && <><button className="scrim" onClick={()=>setMenu(false)} aria-label="Close menu"/><nav id="site-menu" className="drawer" aria-label="Site menu"><Tile to="/" icon={Home}>Homepage</Tile>{(member ? memberPages.concat(['/plans','/support','/faq','/contact','/login']) : ['/plans','/dashboard','/signup','/login','/support','/contact','/faq','/terms','/privacy']).map(path=><Tile key={path} to={path}>{names[path]}</Tile>)}</nav></>}
-    {page==='/'?<HomePage/>:<main id="content" className="inner"><div className="banner"><Link to={member&&page!=='/dashboard'?'/dashboard':'/'} aria-label="Back"><ArrowLeft size={19}/></Link></div><div className="page-content"><h1>{page==='/login'?'Welcome back':title}</h1>{['/login','/signup','/reset-password'].includes(page)&&<p className="intro">Use your mobile number to access your hub.</p>}<Page key={page} page={page} query={query}/></div></main>}
-    <nav className="bottom" aria-label="Main navigation">{nav.map(([to,label,Icon])=><Link key={to} to={to} aria-current={section===to?'page':undefined}><Icon size={20}/><span>{label}</span></Link>)}</nav>
+    <header><Link className="brand" to="/" aria-label="EarnifyHub home"><img src="/media/logo-light.png" alt="EarnifyHub"/></Link><div className="header-actions">{member && <Link className="account-button" to="/account" aria-label="Account"><UserPlus size={20}/></Link>}<button className="icon-button" aria-expanded={menu} aria-controls={menu?'site-menu':undefined} aria-label={menu?'Close menu':'Open menu'} onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header>
+    {menu && <><button className="scrim" onClick={()=>setMenu(false)} aria-label="Dismiss menu"/><nav id="site-menu" className="drawer" aria-label="Site menu">{(member ? memberMenu : guestMenu).map(([path,label])=><Tile key={path} to={path}>{label}</Tile>)}</nav></>}
+    {page==='/'?<HomePage/>:<main id="content" className="inner"><div className="banner"><Link to={member&&page!=='/dashboard'?'/dashboard':'/'} aria-label="Back"><ArrowLeft size={19}/></Link></div><div className="page-content"><h1>{page==='/login'?'Welcome back':title}</h1>{['/login','/signup','/reset-password'].includes(page)&&<p className="intro">Use your mobile number to access your hub.</p>}<Page key={pathname} page={page} query={query}/></div></main>}
+    <nav className="bottom" aria-label="Main navigation">{nav.map(([to,label,Icon])=><Link key={to} to={to} aria-current={section===to?'page':undefined}><Icon size={20}/><span>{label}</span></Link>)}<button type="button" disabled={!member} onClick={logout}><LogOut size={20}/><span>Logout</span></button></nav>
   </div>
 }
 createRoot(document.querySelector('#root')).render(<App/>)

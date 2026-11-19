@@ -96,3 +96,41 @@ details{padding:10px 0;border-bottom:1px solid var(--line)}summary{font-weight:7
 .story-0{background-image:linear-gradient(0deg,#080f2be8,transparent),url('/media/yard.webp')}
 .story-1{background-image:linear-gradient(0deg,#080f2be8,transparent),url('/media/delivery.webp')}
 .story-2{background-image:linear-gradient(0deg,#080f2be8,transparent),url('/media/warehouse.webp')}
+header{background:linear-gradient(105deg,#070e2b,#142750);border-bottom-color:#344b7d}
+.brand{padding:0;background:none;border-radius:0}
+.brand img{width:clamp(128px,43vw,177px)}
+.account-button{display:grid;place-items:center;min-width:42px;min-height:44px;color:var(--cyan)}
+.bottom{grid-template-columns:repeat(4,minmax(0,1fr))}
+.bottom button{display:grid;place-items:center;align-content:center;gap:4px;min-height:49px;font-size:11px;font-weight:700;color:#cbd7f2;background:none;border:0;border-radius:9px}
+.bottom button:hover:not(:disabled){background:#382b83;color:white}
+.bottom button:disabled{opacity:.43;cursor:default}
+#home,#content,#explore,#plans,#tools,#how-it-works,#help{scroll-margin-top:82px}
+.home-content>.section,.home-content>.callout,.feature-banner{margin-top:36px}
+.home-content .story:first-child{min-height:212px}
+.home-content .story{min-height:145px}
+.feature-banner{min-height:232px;display:flex;align-items:flex-end;padding:18px;border:1px solid #3a527e;border-radius:14px;background-position:center;background-size:cover}
+.feature-banner h2{max-width:280px;margin:5px 0;font-size:24px}
+.feature-banner p{max-width:300px;margin:8px 0 12px;color:#d9e2f7}
+.plans-banner{background-image:linear-gradient(0deg,#080e28 3%,#080e2840 100%),url('/media/rail.webp')}
+.network-feature{background-image:linear-gradient(0deg,#080e28 2%,#080e2820 100%),url('/media/connected.webp')}
+.activity-banner{background-image:linear-gradient(0deg,#080e28 2%,#080e2820 100%),url('/media/guide.webp')}
+.story-3{background-image:linear-gradient(0deg,#080f2be8,transparent),url('/media/connected.webp')}
+.story-4{background-image:linear-gradient(0deg,#080f2be8,transparent),url('/media/guide.webp')}
+.help-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.help-actions .button{min-width:0;padding-inline:6px;text-align:center}
+.wallet-summary{display:flex;align-items:center;gap:13px;margin:12px 0 15px;color:var(--cyan)}
+.wallet-summary small,.wallet-summary strong{display:block}
+.wallet-summary strong{font-size:25px;color:white}
+.plan-filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 17px}
+.plan-filters button{min-height:36px;padding:6px 9px;border:1px solid #3a517b;border-radius:8px;background:#14254a;color:var(--text);font-size:12px}
+.plan-filters button[aria-pressed=true]{background:#4d38c1;border-color:#977aff}
+.plan-card{padding:0;overflow:hidden;margin-bottom:19px}
+.plan-card .plan-art{display:flex;align-items:flex-end;justify-content:space-between;min-height:145px;margin:0;border-radius:0;padding:15px}
+.plan-card h2{margin:4px 0 0;font-size:25px}
+.plan-body{padding:15px}
+.plan-body p{margin-top:0}
+.plan-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
+.plan-details div{border:1px solid #334c78;border-radius:9px;background:#0a1532;padding:9px}
+.plan-details dt{font-size:12px;color:var(--muted)}
+.plan-details dd{margin:3px 0 0;font-weight:700}
+.plan-body .button{width:100%;gap:8px}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello</title>
+</head>
+<body>
+  <p id="greeting">Hello, world!</p>
+  <script>
+    const greetings = ["Hello, world!", "Hello, sunshine!", "Hello, curious human!", "Hello from planet Earth!"];
+    const index = Math.floor(Math.random() * greetings.length);
+    document.getElementById("greeting").textContent = greetings[index];
+  </script>
+</body>
+</html>

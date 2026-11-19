@@ -1,0 +1,1 @@
+{"framework":"vite","rewrites":[{"source":"/((?!assets/|media/).*)","destination":"/index.html"}]}

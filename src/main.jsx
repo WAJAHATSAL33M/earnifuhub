@@ -11,15 +11,13 @@ const names = {
   '/account':'Account', '/verification':'Verification', '/support':'Support', '/faq':'FAQ',
   '/terms':'Terms', '/privacy':'Privacy', '/network':'Explore the Network'
 }
-const memberPages = ['/dashboard','/plans','/investments','/team','/rewards','/invest','/confirm-deposit','/deposit','/withdraw','/transfer','/history','/account','/verification','/contact','/support','/faq','/terms','/privacy','/network']
+const memberPages = ['/dashboard','/investments','/team','/rewards','/invest','/confirm-deposit','/deposit','/withdraw','/transfer','/history','/account','/verification','/contact','/support','/faq','/terms','/privacy','/network']
 const providers = ['Easypaisa','JazzCash','NayaPay','UBL Bank','UPaisa']
 const samplePlans = [
-  ['Rail Link',320,80,'Local route','Start with the smallest example plan.'],
-  ['Transit Plus',640,80,'Regional route','Review a larger fixed-term example.'],
-  ['Network Select',1280,80,'Regional route','Explore the next tier in the sample catalog.'],
-  ['Intermodal',2560,80,'Extended route','Compare this plan’s amount and duration.'],
-  ['Metro Exchange',5120,80,'Extended route','Review a higher-value example.'],
-  ['Mainline',11000,80,'Extended route','Explore the largest example in this catalog.']
+  ['Plan 1',1000,50,'Local route'],
+  ['Plan 2',2000,100,'Regional route'],
+  ['Plan 3',5000,200,'Regional route'],
+  ['Plan 4',10000,300,'Extended route']
 ]
 const money = amount => 'PKR ' + Number(amount).toLocaleString('en-PK')
 const sessionKey = 'earnifyhub-preview-session'
@@ -138,11 +136,11 @@ function Plans() {
   const [filter,setFilter] = useState('All plans')
   const filters = ['All plans','Local route','Regional route','Extended route']
   return <><Panel title="Deposit wallet"><div className="wallet-summary"><Wallet size={27}/><div><small>Available balance · demo</small><strong>PKR 0.00</strong></div></div><div className="actions"><Action to="/deposit">Deposit</Action><Action to="/investments" secondary>My Investments</Action></div></Panel>
-    <p className="notice">Sample catalog. Earnings schedules and capital terms are pending.</p>
+    <p className="notice">Preview only. Daily earnings are illustrative. Plan duration and payout terms are pending.</p>
     <div className="plan-filters" aria-label="Plan categories">{filters.map(item=><button type="button" key={item} aria-pressed={filter===item} onClick={()=>setFilter(item)}>{item}</button>)}</div>
-    {samplePlans.map(([title,amount,days,route,description],index)=>filter!=='All plans' && route!==filter ? null:<section className="panel plan-card" key={title}>
+    {samplePlans.map(([title,amount,dailyEarnings,route],index)=>filter!=='All plans' && route!==filter ? null:<section className="panel plan-card" key={title}>
       <div className={'plan-art story-'+(index%5)}><div><span className="eyebrow">{route}</span><h2>{title}</h2></div><TrainFront size={24}/></div>
-      <div className="plan-body"><p>{description}</p><dl className="plan-details"><div><dt>Plan amount</dt><dd>{money(amount)}</dd></div><div><dt>Validity</dt><dd>{days} days</dd></div><div><dt>Daily credit</dt><dd>Pending</dd></div><div><dt>Total credit</dt><dd>Pending</dd></div></dl><Action to={'/invest?plan='+index}>Review Plan <ArrowRight size={16}/></Action></div>
+      <div className="plan-body"><dl className="plan-details"><div><dt>Plan amount</dt><dd>{money(amount)}</dd></div><div><dt>Daily earnings</dt><dd>{money(dailyEarnings)}</dd></div></dl><Action to={'/invest?plan='+index}>Review Plan <ArrowRight size={16}/></Action></div>
     </section>)}
   </>
 }
@@ -163,7 +161,7 @@ function Payment({page, query}) {
       <Input title="Amount in PKR" type="number" min="1" step="1" required value={amount} readOnly={investing} onChange={event=>setAmount(event.target.value)}/>
       {!transfer && <Label title={withdraw?'Payout method':'Payment method'}><select value={provider} onChange={event=>setProvider(event.target.value)}>{providers.map(value=><option key={value}>{value}</option>)}</select></Label>}
       {withdraw && <Input title="Recipient" placeholder="Demo recipient"/>}
-      {investing && <p>{selected[2]} days · <Link to="/terms">View sample terms</Link></p>}
+      {investing && <p>{money(selected[2])} in illustrative daily earnings · <Link to="/terms">View sample terms</Link></p>}
       <div className="stats"><span>Example fee<strong>PKR 0</strong></span><span>Total<strong>{money(amount)}</strong></span></div>
     </Form>}
   </Panel></>
